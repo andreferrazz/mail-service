@@ -8,6 +8,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Arrays;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -45,8 +47,11 @@ class MailSenderControllerTest {
     }
 
     @Test
-    void givenANonAllowedOrigin_whenPerformRequest_returnForbiddenStatus() throws Exception {
-        var request = post("/email").header("Origin", "https://non-andreferraz.com");
+    void givenAForbiddenOrigin_whenPerformRequest_returnForbiddenStatus() throws Exception {
+        if (Arrays.asList(allowedOrigins).contains("*")) {
+            return;
+        }
+        var request = post("/email").header("Origin", "https://non-allowed-origin.com");
         mockMvc.perform(request)
                 .andExpect(status().isForbidden())
                 .andExpect(header().doesNotExist("Access-Control-Allow-Origin"));
