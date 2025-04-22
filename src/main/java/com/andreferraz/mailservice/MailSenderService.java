@@ -13,14 +13,14 @@ public class MailSenderService {
     private final MailSender mailSender;
 
     @Value("${spring.mail.username}")
-    private String to;
+    private String mailUsername;
 
     public void send(String senderName, String senderEmailAddress, String text) {
         var message = new SimpleMailMessage();
-        message.setFrom(senderEmailAddress);
-        message.setTo(to);
+        message.setFrom(mailUsername);
+        message.setTo(mailUsername);
         message.setSubject(String.format("%s says hello!", senderName));
-        message.setText(text);
+        message.setText(String.format("Name: %s\nE-mail: %s\nMessage: %s", senderName, senderEmailAddress, text));
         this.mailSender.send(message);
     }
 }
