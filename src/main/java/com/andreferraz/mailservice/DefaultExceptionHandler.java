@@ -1,4 +1,4 @@
-package com.andreferraz.mail_sender;
+package com.andreferraz.mailservice;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;

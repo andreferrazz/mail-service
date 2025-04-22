@@ -1,4 +1,4 @@
-package com.andreferraz.mail_sender;
+package com.andreferraz.mailservice;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

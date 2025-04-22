@@ -1,4 +1,4 @@
-package com.andreferraz.mail_sender;
+package com.andreferraz.mailservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

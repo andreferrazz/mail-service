@@ -1,4 +1,4 @@
-package com.andreferraz.mail_sender;
+package com.andreferraz.mailservice;
 
 public record ErrorResponse(String title,
                             String detail,

@@ -1,10 +1,10 @@
-package com.andreferraz.mail_sender;
+package com.andreferraz.mailservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class MailSenderApplicationTests {
+class MailServiceApplicationTests {
 
 	@Test
 	void contextLoads() {

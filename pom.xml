@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.andreferraz</groupId>
-	<artifactId>mail-sender</artifactId>
+	<artifactId>mail-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>mail-sender</name>
+	<name>mail-service</name>
 	<description>API for sending e-mails</description>
 	<url/>
 	<licenses>
