@@ -15,12 +15,12 @@ public class MailSenderService {
     @Value("${spring.mail.username}")
     private String mailUsername;
 
-    public void send(String senderName, String senderEmailAddress, String text) {
-        var message = new SimpleMailMessage();
-        message.setFrom(mailUsername);
-        message.setTo(mailUsername);
-        message.setSubject(String.format("%s says hello!", senderName));
-        message.setText(String.format("Name: %s\nE-mail: %s\nMessage: %s", senderName, senderEmailAddress, text));
-        this.mailSender.send(message);
+    public void send(String name, String email, String message) {
+        var mailMessage = new SimpleMailMessage();
+        mailMessage.setFrom(mailUsername);
+        mailMessage.setTo(mailUsername);
+        mailMessage.setSubject(String.format("%s says hello!", name));
+        mailMessage.setText(String.format("Name: %s\nE-mail: %s\nMessage: %s", name, email, message));
+        this.mailSender.send(mailMessage);
     }
 }

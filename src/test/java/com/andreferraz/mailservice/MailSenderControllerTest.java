@@ -5,11 +5,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
+import org.springframework.mail.MailSendException;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -21,27 +27,40 @@ class MailSenderControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @MockitoBean
+    private MailSender mailSender;
+
     @Value("${cors.allowedOrigins}")
     private String[] allowedOrigins;
 
+    private static final String REFERER = "https://example.com/contact";
+
     @Test
-    void test() throws Exception {
-            var request = post("/email")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content("{ \"senderName\": \"André\", \"senderEmailAddress\": \"oandreferraz@gmail.com\",  \"text\": \"Hi!\" }");
-            mockMvc.perform(request)
-                    .andExpect(status().isCreated());
+    void whenPostEmail_thenRedirectToReferer() throws Exception {
+        var request = post("/email")
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .param("name", "André")
+                .param("email", "andre@gmail.com")
+                .param("message", "Hi!")
+                .header("Referer", REFERER);
+        mockMvc.perform(request)
+                .andExpect(status().isFound())
+                .andExpect(header().string("Location", REFERER));
     }
 
     @Test
-    void givenAnAllowedOrigin_whenPerformRequest_returnCreatedStatus() throws Exception {
+    void givenAnAllowedOrigin_whenPerformRequest_returnRedirectStatus() throws Exception {
         for (var origin : allowedOrigins) {
             var request = post("/email")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content("{ \"senderName\": \"André\", \"senderEmailAddress\": \"oandreferraz@gmail.com\",  \"text\": \"Hi!\" }")
-                    .header("Origin", origin);
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .param("name", "André")
+                    .param("email", "andre@gmail.com")
+                    .param("message", "Hi!")
+                    .header("Origin", origin)
+                    .header("Referer", REFERER);
             mockMvc.perform(request)
-                    .andExpect(status().isCreated())
+                    .andExpect(status().isFound())
+                    .andExpect(header().string("Location", REFERER))
                     .andExpect(header().string("Access-Control-Allow-Origin", origin));
         }
     }
@@ -55,5 +74,20 @@ class MailSenderControllerTest {
         mockMvc.perform(request)
                 .andExpect(status().isForbidden())
                 .andExpect(header().doesNotExist("Access-Control-Allow-Origin"));
+    }
+
+    @Test
+    void whenMailExceptionThrown_thenRedirectToRefererWithError() throws Exception {
+        doThrow(new MailSendException("SMTP error"))
+                .when(mailSender).send(any(SimpleMailMessage.class));
+        var request = post("/email")
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .param("name", "André")
+                .param("email", "andre@gmail.com")
+                .param("message", "Hi!")
+                .header("Referer", REFERER);
+        mockMvc.perform(request)
+                .andExpect(status().isFound())
+                .andExpect(header().string("Location", REFERER + "?error=true"));
     }
 }

@@ -2,6 +2,8 @@ package com.andreferraz.mailservice;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -18,6 +20,17 @@ public class DefaultExceptionHandler {
     public ResponseEntity<?> handleMailException(HttpServletRequest req, Exception e) {
         var errorMessage = "Could not send e-mail through SMTP server";
         log.error(errorMessage, e);
+
+        String referer = req.getHeader(HttpHeaders.REFERER);
+        if (referer != null) {
+            String separator = referer.contains("?") ? "&" : "?";
+            String redirectUrl = referer + separator + "error=true";
+            return ResponseEntity
+                    .status(HttpStatus.FOUND)
+                    .header(HttpHeaders.LOCATION, redirectUrl)
+                    .build();
+        }
+
         var response = new ErrorResponse(
                 INTERNAL_SERVER_ERROR.getReasonPhrase(),
                 errorMessage,

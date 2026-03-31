@@ -1,6 +1,6 @@
 package com.andreferraz.mailservice;
 
-public record EmailRequestBody(String senderName,
-                               String senderEmailAddress,
-                               String text) {
+public record EmailRequestBody(String name,
+                               String email,
+                               String message) {
 }
