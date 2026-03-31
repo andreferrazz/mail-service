@@ -16,7 +16,7 @@ public class DefaultExceptionHandler {
 
     @ExceptionHandler(MailException.class)
     public ResponseEntity<?> handleMailException(HttpServletRequest req, Exception e) {
-        var errorMessage = "Could not send e-mail through smtp server";
+        var errorMessage = "Could not send e-mail through SMTP server";
         log.error(errorMessage, e);
         var response = new ErrorResponse(
                 INTERNAL_SERVER_ERROR.getReasonPhrase(),
