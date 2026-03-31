@@ -16,8 +16,12 @@ public class MailSenderController {
     private final MailSenderService mailSenderService;
 
     @PostMapping("/email")
-    public ResponseEntity<Void> sendEmail(@ModelAttribute EmailRequestBody payload, HttpServletRequest request) {
+    public ResponseEntity<?> sendEmail(@ModelAttribute EmailRequestBody payload, HttpServletRequest request) {
         mailSenderService.send(payload.name(), payload.email(), payload.message());
+        String accept = request.getHeader(HttpHeaders.ACCEPT);
+        if (accept != null && accept.contains("application/json")) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(java.util.Map.of("message", "E-mail successfully sent"));
+        }
         String referer = request.getHeader(HttpHeaders.REFERER);
         return ResponseEntity
                 .status(HttpStatus.FOUND)

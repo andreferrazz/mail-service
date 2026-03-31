@@ -18,6 +18,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -74,6 +75,34 @@ class MailSenderControllerTest {
         mockMvc.perform(request)
                 .andExpect(status().isForbidden())
                 .andExpect(header().doesNotExist("Access-Control-Allow-Origin"));
+    }
+
+    @Test
+    void whenPostEmailWithJsonAccept_thenReturn201() throws Exception {
+        var request = post("/email")
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .accept(MediaType.APPLICATION_JSON)
+                .param("name", "André")
+                .param("email", "andre@gmail.com")
+                .param("message", "Hi!");
+        mockMvc.perform(request)
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message").value("E-mail successfully sent"));
+    }
+
+    @Test
+    void whenMailExceptionWithJsonAccept_thenReturn500() throws Exception {
+        doThrow(new MailSendException("SMTP error"))
+                .when(mailSender).send(any(SimpleMailMessage.class));
+        var request = post("/email")
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .accept(MediaType.APPLICATION_JSON)
+                .param("name", "André")
+                .param("email", "andre@gmail.com")
+                .param("message", "Hi!");
+        mockMvc.perform(request)
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.status").value(500));
     }
 
     @Test

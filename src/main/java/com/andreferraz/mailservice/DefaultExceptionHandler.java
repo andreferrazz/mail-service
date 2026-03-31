@@ -21,14 +21,17 @@ public class DefaultExceptionHandler {
         var errorMessage = "Could not send e-mail through SMTP server";
         log.error(errorMessage, e);
 
-        String referer = req.getHeader(HttpHeaders.REFERER);
-        if (referer != null) {
-            String separator = referer.contains("?") ? "&" : "?";
-            String redirectUrl = referer + separator + "error=true";
-            return ResponseEntity
-                    .status(HttpStatus.FOUND)
-                    .header(HttpHeaders.LOCATION, redirectUrl)
-                    .build();
+        String accept = req.getHeader(HttpHeaders.ACCEPT);
+        if (accept == null || !accept.contains("application/json")) {
+            String referer = req.getHeader(HttpHeaders.REFERER);
+            if (referer != null) {
+                String separator = referer.contains("?") ? "&" : "?";
+                String redirectUrl = referer + separator + "error=true";
+                return ResponseEntity
+                        .status(HttpStatus.FOUND)
+                        .header(HttpHeaders.LOCATION, redirectUrl)
+                        .build();
+            }
         }
 
         var response = new ErrorResponse(
