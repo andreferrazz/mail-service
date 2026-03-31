@@ -4,6 +4,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 .env
+.ai-jail
 
 ### STS ###
 .apt_generated
